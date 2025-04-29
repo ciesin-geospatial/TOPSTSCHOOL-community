@@ -1,0 +1,19 @@
+---
+title: "Weird Weather"
+author: "Masha Vernik, Camilla Green,"
+date: "2025-04-29"
+format: html
+---
+
+Weird Weather: Precipitation and Temperature Variability for Assessing Agricultural Vulnerability to Climate Change
+
+Overview 
+
+Objectives
+
+
+Introduction
+
+```{Python}
+
+```
