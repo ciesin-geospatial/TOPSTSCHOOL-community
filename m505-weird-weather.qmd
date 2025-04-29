@@ -5,15 +5,16 @@ date: "2025-04-29"
 format: html
 ---
 
-Weird Weather: Precipitation and Temperature Variability for Assessing Agricultural Vulnerability to Climate Change
+## Weird Weather: Precipitation and Temperature Variability for Assessing Agricultural Vulnerability to Climate Change
 
-Overview 
+### Overview
 
-Objectives
+### Objectives
 
+### Introduction
 
-Introduction
-
-```{Python}
-
+```{python}
+#Import packages
+import ee
+import geemap
 ```
