@@ -1,0 +1,38 @@
+---
+title: "Weird Weather In Washington State"
+author: 
+    - Masha Vernik
+    - Camilla Green
+    - Juan Martinez
+    - NLU Students 
+format: 
+    html
+
+---
+
+## Weird Weather: Precipitation and Temperature Variability for Assessing Agricultural Vulnerability to Climate Change
+
+### Overview
+
+### Objectives
+
+### Introduction
+
+
+
+## Python packages
+
+This lesson uses the following Python packages to work with Google Earth Engine: `ee`, `earthengine-api`, `pandas`, `numpy`
+
+
+```{python}
+
+import ee
+import geemap 
+import pandas as pd 
+import datetime
+```
+
+# Getting Started with Google Earth Engine (GEE)
+
+Google Earth Engine (GEE) requires registration. Since this is for educational purposes, a pricing plan is not required for noncommercial registration. For more information accessing GEE, please visit [Earth Engine Access](https://developers.google.com/earth-engine/guides/access). 

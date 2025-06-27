@@ -1,0 +1,130 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "4ab99d78",
+   "metadata": {},
+   "source": [
+    "---\n",
+    "title: \"Weird Weather In Washington State\"\n",
+    "author: \n",
+    "    - Masha Vernik\n",
+    "    - Camilla Green\n",
+    "    - Juan Martinez\n",
+    "    - NLU Students \n",
+    "format: \n",
+    "    html\n",
+    "\n",
+    "---\n",
+    "\n",
+    "\n",
+    "## Weird Weather: Precipitation and Temperature Variability for Assessing Agricultural Vulnerability to Climate Change\n",
+    "\n",
+    "### Overview\n",
+    "\n",
+    "### Objectives\n",
+    "\n",
+    "### Introduction\n",
+    "\n",
+    "\n",
+    "\n",
+    "## Python packages\n",
+    "\n",
+    "This lesson uses the following Python packages to work with Google Earth Engine: `ee`, `earthengine-api`, `pandas`, `numpy`\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "6e107f46",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import ee\n",
+    "import geemap \n",
+    "import pandas as pd \n",
+    "import datetime"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6011313b",
+   "metadata": {},
+   "source": [
+    "# Getting Started with Google Earth Engine (GEE)\n",
+    "\n",
+    "Google Earth Engine (GEE) requires registration. Since this is for educational purposes, a pricing plan is not required for noncommercial registration. For more information accessing GEE, please visit [Earth Engine Access](https://developers.google.com/earth-engine/guides/access). "
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python (agsdev)",
+   "language": "python",
+   "name": "agsdev",
+   "path": "C:\\Users\\jmartine\\AppData\\Local\\ESRI\\conda\\envs\\agsdev\\share\\jupyter\\kernels\\agsdev"
+  },
+  "widgets": {
+   "application/vnd.jupyter.widget-state+json": {
+    "state": {
+     "11bfe07d9c804697a32e0bb7578d69dc": {
+      "model_module": "@jupyter-widgets/base",
+      "model_module_version": "1.2.0",
+      "model_name": "LayoutModel",
+      "state": {
+       "_model_module": "@jupyter-widgets/base",
+       "_model_module_version": "1.2.0",
+       "_model_name": "LayoutModel",
+       "_view_count": null,
+       "_view_module": "@jupyter-widgets/base",
+       "_view_module_version": "1.2.0",
+       "_view_name": "LayoutView",
+       "align_content": null,
+       "align_items": null,
+       "align_self": null,
+       "border": null,
+       "bottom": null,
+       "display": null,
+       "flex": null,
+       "flex_flow": null,
+       "grid_area": null,
+       "grid_auto_columns": null,
+       "grid_auto_flow": null,
+       "grid_auto_rows": null,
+       "grid_column": null,
+       "grid_gap": null,
+       "grid_row": null,
+       "grid_template_areas": null,
+       "grid_template_columns": null,
+       "grid_template_rows": null,
+       "height": null,
+       "justify_content": null,
+       "justify_items": null,
+       "left": null,
+       "margin": null,
+       "max_height": null,
+       "max_width": null,
+       "min_height": null,
+       "min_width": null,
+       "object_fit": null,
+       "object_position": null,
+       "order": null,
+       "overflow": null,
+       "overflow_x": null,
+       "overflow_y": null,
+       "padding": null,
+       "right": null,
+       "top": null,
+       "visibility": null,
+       "width": "500px"
+      }
+     }
+    },
+    "version_major": 2,
+    "version_minor": 0
+   }
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
