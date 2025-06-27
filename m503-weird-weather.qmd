@@ -19,20 +19,6 @@ format:
 ### Introduction
 
 
-:::
-## Python packages
-
-This lesson uses the following Python packages to work with Google Earth Engine: `ee`, `earthengine-api`, `pandas`, `numpy`
-
-:::
-
-```{python}
-
-import ee
-import geemap 
-import pandas as pd 
-import datetime
-```
 
 # Getting Started with Google Earth Engine (GEE)
 
@@ -46,10 +32,10 @@ For more information, please see [An Intro to the Earth Engine Python API](https
 
 First of all, run the following cell to initialize the API. The output will contain instructions on how to grant this notebook access to Earth Engine using your account. To find out the **project ID**, Go to [https://console.cloud.google.com/](https://console.cloud.google.com/); In the top bar, click the dropdown next to the current project name. You’ll see a list of projects. The Project ID is in the second column.
 
-```{python}
-#| eval: false
+```{python} 
+#| eval: false 
 
-
+import ee
 
 # Trigger the authentication flow.
 ee.Authenticate()
@@ -58,15 +44,14 @@ ee.Authenticate()
 ee.Initialize(project='PROJECT_ID') #replpace with your project ID
 
 ```
-```{python}
 
+```{python} 
+#| echo: false
 
-
-# Trigger the authentication flow.
+import ee
 ee.Authenticate()
-
-# Initialize the library.
-ee.Initialize(project='ee-jmartine') #replpace with your project ID
+ee.Initialize(project='ee-jmartine')
+print(ee.String('Hello from the Earth Engine servers!').getInfo())
 ```
 
 The code above should generate a GEE token, which this application will request for you to paste. 
@@ -74,8 +59,38 @@ The code above should generate a GEE token, which this application will request 
 
 # Working with U.S. Census TIGER data
 
+::: {.callout-tip style="color: #5a7a2b;"}
+## Python packages
+
+This lesson uses the following Python packages to work with Google Earth Engine: `ee`, `earthengine-api`, `pandas`, `numpy`
+
+:::
 
 ```{python}
+
+
+import folium
+import matplotlib.pyplot as plt
+import pandas as pd
+import datetime
+import branca.colormap as cm
+
+
+
+```
+
+If you're having issues with the `geemap` package, please run the code below on a bash, zsh, or terminal window:
+
+```{python} 
+
+
+pip install --upgrade geemap
+
+```
+
+
+```{python}
+
 # U.S. Census counties (2020)
 counties = ee.FeatureCollection("TIGER/2018/Counties")
 
@@ -86,17 +101,33 @@ wa_counties = counties.filter(ee.Filter.eq("STATEFP", "53"))
 
 ```{python}
 
+# # Create the map
+# Map1 = geemap.Map(center=[47.5, -120], zoom=6)
+
+# # Add Washington counties layer
+# Map1.addLayer(wa_counties, {}, "Washington Counties")
+
+# # Display the map
+# Map1
 
 
+# Convert the Earth Engine FeatureCollection to GeoJSON
+wa_counties_geojson = ee.FeatureCollection(wa_counties).getInfo()
 
-# Create the map
-Map = geemap.Map(center=[47.5, -120], zoom=6)
+# Create a folium map
+Map1 = folium.Map(location=[47.5, -120], zoom_start=6)
 
-# Add Washington counties layer
-Map.addLayer(wa_counties, {}, "Washington Counties")
+# Add the counties as a GeoJSON overlay
+folium.GeoJson(
+    wa_counties_geojson,
+    name="Washington Counties"
+).add_to(Map1)
+
+# Add layer control
+folium.LayerControl().add_to(Map1)
 
 # Display the map
-Map
+Map1
 
 ```
 
@@ -121,18 +152,7 @@ era5 = era5.map(lambda img: img.clip(wa_counties))
 
 ```
 
-We can plot the data on a map!
-
-
-```{python}
-
-
-# map it!
-
-Map.addLayer(era5.first(), {}, 'era5')
-Map
-
-```
+Filter Data from ERA5 
 
 ```{python}
 # Filter to list of years 
@@ -328,424 +348,6 @@ for doy in range(121, 124): #182
 
 ```
 
-## Square differences
-
-
-```{python}
-
-
-# Ensure both have same index and columns
-obs = temps_daily1.set_index('county_id').copy()
-clim = temps_1.set_index('county_id').copy()
-
-# Extract day columns (e.g., '121'–'365')
-day_cols = [col for col in obs.columns if col.isdigit() and col in clim.columns]
-
-# Subset and align
-obs_days = obs[day_cols].astype(float).sort_index()
-clim_days = clim[day_cols].astype(float).sort_index()
-
-# Subtract climatology from observed: get daily anomalies
-anomalies = obs_days - clim_days
-
-anomalies
-```
-
-```{python}
-# Assume anomaly_df is your wide-format anomaly DataFrame
-
-# Identify the day-of-year columns
-day_cols = [col for col in anomalies.columns if col.isdigit()]
-
-# Compute mean anomaly across counties for each day
-daily_mean_anomaly = anomalies[day_cols].mean(axis=0)
-
-# Reset index to long format: two columns → 'day', 'anomaly'
-daily_anomaly_long = daily_mean_anomaly.reset_index()
-daily_anomaly_long.columns = ['day', 'anomaly']
-
-# Convert day column to integer for easier plotting
-daily_anomaly_long['day'] = daily_anomaly_long['day'].astype(int)
-
-# Preview
-print(daily_anomaly_long.head())
-
-```
-
-
-
-```{python}
-import matplotlib.pyplot as plt 
-import numpy as np
-
-# Assuming your DataFrame is called daily_anomaly_long
-# and has columns 'day' (int) and 'anomaly' (float)
-
-# Sort by day just to be sure
-daily_anomaly_long = daily_anomaly_long.sort_values("day")
-
-# Extract values
-x = daily_anomaly_long['day'].values
-y = daily_anomaly_long['anomaly'].values
-
-# Create color list based on anomaly sign
-colors = ['red' if val < 0 else 'blue' for val in y]
-
-# Plot continuous line
-plt.figure(figsize=(12, 5))
-plt.plot(x, y, color='gray', linewidth=1.5, label='Anomaly')  # single line
-
-# Overlay colored markers
-plt.scatter(x, y, c=colors, edgecolor='black', s=40, zorder=3)
-
-# Add zero line
-plt.axhline(0, color='black', linestyle='--', linewidth=1)
-
-# Labels and styling
-plt.title("Mean Daily Temperature Anomalies Across All Counties (2024)")
-plt.xlabel("Day of Year")
-plt.ylabel("Temperature Anomaly (°C)")
-plt.grid(True)
-plt.tight_layout()
-plt.show()
-
-
-```
-
-
-
-```{python}
-anomalies['avg_anomaly'] = anomalies[day_cols].mean(axis=1)
-
-anomaly_df_result = anomalies[['avg_anomaly']].copy()
-anomaly_df_result.index.name = 'county_id'
-
-
-anomaly_df_result
-
-```
-
-
-```{python}
-# Step 1: Make a dictionary from the DataFrame
-anomaly_dict = anomaly_df_result['avg_anomaly'].to_dict()
-
-# Step 2: Create an EE dictionary object
-ee_anomaly_dict = ee.Dictionary(anomaly_dict)
-
-# Step 3: Function to attach avg_anomaly to each county by GEOID
-def add_anomaly(feature):
-    geoid = feature.get('GEOID')
-    anomaly = ee_anomaly_dict.get(geoid)
-    return feature.set('avg_anomaly', anomaly)
-
-# Apply to the wa_counties FeatureCollection
-wa_counties_anomaly = wa_counties.map(add_anomaly)
-
-
-```
-
-```{python}
-# View the first feature (prints a dictionary of properties including avg_anomaly)
-print(wa_counties_anomaly.first().getInfo())
-
-```
-
-
-```{python}
-
-# Initialize map
-Map = geemap.Map(center=[47.5, -120], zoom=6)
-
-
-# Add the styled vector layer to the map
-Map.add_styled_vector(
-    ee_object=wa_counties_anomaly,
-    column='avg_anomaly',
-    palette=['blue', 'white', 'red'], # Blue for negative, white for zero, red for positive
-    layer_name='Avg Anomaly by County'
-)
-
-
-Map
-
-
-```
-
-
-```{python} 
-
-
-
-# Trigger the authentication flow.
-ee.Authenticate()
-
-# Initialize the library.
-ee.Initialize(project='ee-jmartine') #replpace with your project ID
-```
-
-The code above should generate a GEE token, which this application will request for you to paste. 
-
-
-# Working with U.S. Census TIGER data
-
-
-```{python}
-# U.S. Census counties (2020)
-counties = ee.FeatureCollection("TIGER/2018/Counties")
-
-# Filter to Washington State (STATEFP = '53')
-wa_counties = counties.filter(ee.Filter.eq("STATEFP", "53"))
-
-```
-
-```{python}
-
-
-
-
-# Create the map
-Map = geemap.Map(center=[47.5, -120], zoom=6)
-
-# Add Washington counties layer
-Map.addLayer(wa_counties, {}, "Washington Counties")
-
-# Display the map
-Map
-
-
-```
-
-
-## Importing ERA5 Land Daily Aggregated image collection
-
-The [GEE Data Catalog](https://developers.google.com/earth-engine/datasets) is a great source for planetary-scale Earth science data.
-
-From this catalog, we will be working with the [ERA5-Land Daily Aggregated - ECMWF Climate Reanalysis](https://developers.google.com/earth-engine/datasets/catalog/ECMWF_ERA5_LAND_DAILY_AGGR?hl=en). 
-
-
-```{python}
-
-#Import data
-era5 = ee.ImageCollection("ECMWF/ERA5_LAND/DAILY_AGGR")
-
-# Filter to years and selected bands
-era5 = era5.filterDate('2009-01-01', '2024-12-31').select('temperature_2m', 'total_precipitation_sum')
-
-# Clip each image to Washington state (functionally map over the collection)
-era5 = era5.map(lambda img: img.clip(wa_counties))
-
-```
-
-Again, map the data!
-
-
-```{python}
-
-
-# map it!
-
-Map.addLayer(era5.first(), {}, 'era5')
-
-Map
-
-```
-
-```{python}
-# Filter to list of years 
-
-# Creating list of normals years for ERA 5 land
-era5_hist = era5.filterDate('2009-01-01', '2023-12-31')
-
-
-# Creating list of days for the year
-era5_2024 = era5.filterDate('2024-01-01', '2024-12-31')
-
-```
-
-## Calculate Normals from 2009 - 2023
-
-Loop through each of the 10 years: 2009-2013
-    - Select only relevant years for that iteration of the loop
-    - Create average for each day for each year
-    - create image collection that contains an image with averages for each day for the selected years
-    - for each image in image collection, reduce to zip code average
-    - return list of averages for each zip for each day in those selected years 
-
-
-
-
-```{python}
-# Function to get average values for each county in a FeatureCollection
-# Safer Avg function with fallback scale
-# Safe average function with fixed scale and GEOID to county_id
-def Avg(image, counties, fallback_scale=10000):
-    # Safely get scale (if projection is valid)
-    scale = ee.Number(fallback_scale)
-    try:
-        proj_scale = image.projection().nominalScale()
-        scale = ee.Algorithms.If(proj_scale, proj_scale, scale)
-    except:
-        pass  # fallback already defined
-
-    # Reduce image over counties
-    stats = image.reduceRegions(
-        collection=counties,
-        reducer=ee.Reducer.mean(),
-        scale=scale
-    )
-
-    # Ensure 'county_id' property is present (based on GEOID)
-    def add_ids(f):
-        return f.set('county_id', f.get('GEOID'))
-
-    return stats.map(add_ids)
-
-
-
-```
-
-
-
-
-```{python}
-
-
-# Get both county GEOIDs and names
-county_ids = wa_counties.aggregate_array('GEOID').getInfo()
-county_names = wa_counties.aggregate_array('NAME').getInfo()
-
-# Initialize DataFrames
-temps_1 = pd.DataFrame({'county_id': county_ids, 'county_name': county_names})
-precips_1 = pd.DataFrame({'county_id': county_ids, 'county_name': county_names})
-
-# Loop through days of year (DOY 121–123, i.e., May 1–3 for testing)
-for day in range(121, 124): #182
-    print(f"Processing DOY {day}")
-    day_str = str(day)
-
-    # 1. Get composite average for this DOY across all years
-    day_data = era5_hist.filter(ee.Filter.calendarRange(day, day, 'day_of_year'))
-    composite = day_data.mean()
-
-    # 2. Reduce over counties
-    reduced = composite.reduceRegions(
-        collection=wa_counties,
-        reducer=ee.Reducer.mean(),
-        scale=10000  # ERA5 resolution
-    )
-
-    # Add county_id and county_name to each feature
-    def add_county_info(f):
-        return f.set({
-            'county_id': f.get('GEOID'),
-            'county_name': f.get('NAME')
-        })
-
-    reduced = reduced.map(add_county_info)
-
-    # 3. TEMPERATURE EXTRACTION
-    temp_data = reduced.map(lambda f: ee.Feature(None, {
-        'county_id': f.get('county_id'),
-        'county_name': f.get('county_name'),
-        day_str: f.get('temperature_2m')
-    })).reduceColumns(
-        reducer=ee.Reducer.toList(3),
-        selectors=['county_id', 'county_name', day_str]
-    ).getInfo()['list']
-
-    temp_df = pd.DataFrame(temp_data, columns=['county_id', 'county_name', day_str])
-    temps_1 = pd.merge(temps_1, temp_df, on=['county_id', 'county_name'], how='left')
-
-    # 4. PRECIPITATION EXTRACTION
-    precip_data = reduced.map(lambda f: ee.Feature(None, {
-        'county_id': f.get('county_id'),
-        'county_name': f.get('county_name'),
-        day_str: f.get('total_precipitation_sum')
-    })).reduceColumns(
-        reducer=ee.Reducer.toList(3),
-        selectors=['county_id', 'county_name', day_str]
-    ).getInfo()['list']
-
-    precip_df = pd.DataFrame(precip_data, columns=['county_id', 'county_name', day_str])
-    precips_1 = pd.merge(precips_1, precip_df, on=['county_id', 'county_name'], how='left')
-
-
-
-```
-
-
-
-```{python}
-
-
-# Get county names and IDs
-county_ids = wa_counties.aggregate_array('GEOID').getInfo()
-county_names = wa_counties.aggregate_array('NAME').getInfo()
-
-# Create base DataFrames with both ID and name
-temps_daily1 = pd.DataFrame({'county_id': county_ids, 'county_name': county_names})
-precips_daily1 = pd.DataFrame({'county_id': county_ids, 'county_name': county_names})
-
-# Loop over each day in 2024 (example: DOY 121–123)
-for doy in range(121, 124): #182
-    date = datetime.date(2024, 1, 1) + datetime.timedelta(days=doy - 1)
-    print(f"Processing DOY {doy} ({date.strftime('%Y-%m-%d')})")
-
-    # Use DOY as string for column name
-    doy_str = str(doy)
-
-    # Get the image for the day
-    img = era5_2024.filterDate(date.strftime('%Y-%m-%d')).first()
-
-    if img is None:
-        print(f"No image found for DOY {doy}")
-        continue
-
-    # Reduce to mean per county
-    reduced = img.reduceRegions(
-        collection=wa_counties,
-        reducer=ee.Reducer.mean(),
-        scale=10000
-    )
-
-    # Add county metadata
-    def add_county_info(f):
-        return f.set({
-            'county_id': f.get('GEOID'),
-            'county_name': f.get('NAME')
-        })
-
-    reduced = reduced.map(add_county_info)
-
-    # ------- TEMPERATURE --------
-    temp_data = reduced.map(lambda f: ee.Feature(None, {
-        'county_id': f.get('county_id'),
-        'county_name': f.get('county_name'),
-        doy_str: f.get('temperature_2m')
-    })).reduceColumns(
-        reducer=ee.Reducer.toList(3),
-        selectors=['county_id', 'county_name', doy_str]
-    ).getInfo()['list']
-
-    temp_df = pd.DataFrame(temp_data, columns=['county_id', 'county_name', doy_str])
-    temps_daily1 = pd.merge(temps_daily1, temp_df, on=['county_id', 'county_name'], how='left')
-
-    # ------- PRECIPITATION --------
-    precip_data = reduced.map(lambda f: ee.Feature(None, {
-        'county_id': f.get('county_id'),
-        'county_name': f.get('county_name'),
-        doy_str: f.get('total_precipitation_sum')
-    })).reduceColumns(
-        reducer=ee.Reducer.toList(3),
-        selectors=['county_id', 'county_name', doy_str]
-    ).getInfo()['list']
-
-    precip_df = pd.DataFrame(precip_data, columns=['county_id', 'county_name', doy_str])
-    precips_daily1 = pd.merge(precips_daily1, precip_df, on=['county_id', 'county_name'], how='left')
-
-
-```
 
 ## Anomalies
 
@@ -765,7 +367,7 @@ clim_days = clim[day_cols].astype(float).sort_index()
 # Subtract climatology from observed: get daily anomalies
 temps_anomalies = obs_days - clim_days
 
-temps_anomalies
+temps_anomalies.head()
 ```
 
 
@@ -784,7 +386,7 @@ clim_days = clim[day_cols].astype(float).sort_index()
 # Subtract climatology from observed: get daily anomalies
 precips_anomalies = obs_days - clim_days
 
-precips_anomalies
+precips_anomalies.head()
 ```
 
 ```{python}
@@ -847,7 +449,7 @@ temps_anomaly_result = temps_anomalies[['avg_anomaly']].copy()
 temps_anomaly_result.index.name = 'county_id'
 
 
-temps_anomaly_result
+temps_anomaly_result.head()
 
 ```
 
@@ -881,70 +483,169 @@ print(wa_counties_anomaly.first().getInfo())
 
 
 
-
-
 ```{python} 
 
+# Convert FeatureCollection to GeoJSON
+geojson = wa_counties_anomaly.getInfo()
 
-# Convert FeatureCollection to GeoJSON (in memory)
-geojson_data = geemap.ee_to_geojson(wa_counties_anomaly)
+# Extract temperature anomaly values
+temp_vals = [f['properties'].get('avg_temp_anomaly') for f in geojson['features'] if f['properties'].get('avg_temp_anomaly') is not None]
+temp_min, temp_max = min(temp_vals), max(temp_vals)
 
+# Create colormap for temperature
+temp_colormap = cm.LinearColormap(['blue', 'white', 'red'], vmin=temp_min, vmax=temp_max)
+temp_colormap.caption = 'Avg Temperature Anomaly (°C)'
 
-Map = geemap.Map(center=[47.5, -120], zoom=6)
+# Create folium map for temperature
+Map_temp = folium.Map(location=[47.5, -120], zoom_start=6)
+temp_colormap.add_to(Map_temp)
 
-
-# Improved style_by_anomaly function with Red (negative) to Blue (positive) palette
-def style_by_anomaly(feature):
-    # Ensure the property name matches your data ('avg_anomaly' was used previously)
-    val = feature['properties'].get('avg_precip_anomaly') # Corrected property name
-
-    color = 'gray' # Default for None or unhandled values
-
-    if val is None:
-        color = 'gray' # For missing data
-
-    # Define thresholds for a diverging red-white-blue palette.
-    # Adjust these thresholds based on the expected range of your anomalies.
-    # I'm setting a symmetric range around zero for demonstration,
-    # assuming anomalies could conceptually go from, say, -2.0 to +2.0.
-    # You might want to adjust `mid_val` to be exactly 0 if 0 is your pivot.
-    # The current min/max you found (-1.35 to -0.279) are all on the negative side.
-    # So, for your current data, it will likely render in shades of red/orange.
-
-    # Negative Anomalies (Red shades)
-    elif val < -1.5:  # Very cold anomaly
-        color = '#8B0000' # Dark Red
-    elif val < -1.0:  # Strongly cold anomaly
-        color = '#FF0000' # Red
-    elif val < -0.5:  # Moderately cold anomaly
-        color = '#FFA07A' # Light Salmon (orange-red)
-    elif val < 0:     # Slightly cold anomaly
-        color = '#FFDAB9' # PeachPuff (very light orange)
-    # Near Zero / Neutral (White/Light Gray - this is the pivot point)
-    elif val < 0.5:   # Slightly warm anomaly (or very close to zero)
-        color = '#ADD8E6' # Light Blue
-    elif val < 1.0:   # Moderately warm anomaly
-        color = '#87CEEB' # SkyBlue
-    elif val < 1.5:   # Strongly warm anomaly
-        color = '#4682B4' # SteelBlue
-    else:             # Very warm anomaly (val >= 1.5)
-        color = '#191970' # MidnightBlue (dark blue)
-
-
+# Style function for temperature
+def temp_style(feature):
+    val = feature['properties'].get('avg_temp_anomaly')
+    color = 'gray' if val is None else temp_colormap(val)
     return {
-        'color': 'black', # Outline color
-        'weight': 1,      # Outline weight
-        'fillColor': color,
-        'fillOpacity': 0.7
+        'fillOpacity': 0.7,
+        'weight': 1,
+        'color': 'black',
+        'fillColor': color
     }
-    
 
-Map.add_geojson(geojson_data, layer_name='Anomaly (May - June, 2024)', style_callback=style_by_anomaly)
-Map
+# Add layer
+folium.GeoJson(
+    geojson,
+    name='Temperature Anomaly',
+    style_function=temp_style,
+    tooltip=folium.GeoJsonTooltip(fields=['avg_temp_anomaly'], aliases=['Temp Anomaly (°C):'])
+).add_to(Map_temp)
+
+folium.LayerControl().add_to(Map_temp)
+Map_temp
+
+```
+
+```{python}
+# Extract precipitation anomaly values
+precip_vals = [f['properties'].get('avg_precip_anomaly') for f in geojson['features'] if f['properties'].get('avg_precip_anomaly') is not None]
+precip_min, precip_max = min(precip_vals), max(precip_vals)
+
+# Create colormap for precipitation
+precip_colormap = cm.LinearColormap(['brown', 'white', 'green'], vmin=precip_min, vmax=precip_max)
+precip_colormap.caption = 'Avg Precipitation Anomaly (mm)'
+
+# Create folium map for precipitation
+Map_precip = folium.Map(location=[47.5, -120], zoom_start=6)
+precip_colormap.add_to(Map_precip)
+
+# Style function for precipitation
+def precip_style(feature):
+    val = feature['properties'].get('avg_precip_anomaly')
+    color = 'gray' if val is None else precip_colormap(val)
+    return {
+        'fillOpacity': 0.7,
+        'weight': 1,
+        'color': 'black',
+        'fillColor': color
+    }
+
+# Add layer
+folium.GeoJson(
+    geojson,
+    name='Precipitation Anomaly',
+    style_function=precip_style,
+    tooltip=folium.GeoJsonTooltip(fields=['avg_precip_anomaly'], aliases=['Precip Anomaly (mm):'])
+).add_to(Map_precip)
+
+folium.LayerControl().add_to(Map_precip)
+Map_precip
 
 ```
 
 
+
+
+```{python}
+
+# Convert EE FeatureCollection to GeoJSON
+geojson = wa_counties_anomaly.getInfo()  # Only safe for small datasets
+
+# Create base folium map
+Map = folium.Map(location=[47.5, -120], zoom_start=6)
+
+# -------------------- TEMPERATURE ANOMALY LAYER --------------------
+
+# Extract temperature anomaly values
+temp_vals = [f['properties'].get('avg_temp_anomaly') for f in geojson['features'] if f['properties'].get('avg_temp_anomaly') is not None]
+temp_min, temp_max = min(temp_vals), max(temp_vals)
+
+# Create colormap for temperature
+temp_colormap = cm.LinearColormap(['#32CD32', 'gray', 'purple'], vmin=temp_min, vmax=temp_max)
+temp_colormap.caption = 'Avg Temperature Anomaly (°C)'
+temp_colormap.add_to(Map)
+
+# Define style function for temperature
+def temp_style(feature):
+    val = feature['properties'].get('avg_temp_anomaly')
+    color = 'gray' if val is None else temp_colormap(val)
+    return {
+        'fillOpacity': 0.7,
+        'weight': 1,
+        'color': 'black',
+        'fillColor': color
+    }
+
+# Add temp layer
+folium.GeoJson(
+    geojson,
+    name='Temperature Anomaly',
+    style_function=temp_style,
+    tooltip=folium.GeoJsonTooltip(fields=['avg_temp_anomaly'], aliases=['Temp Anomaly (°C):'])
+).add_to(Map)
+
+
+# -------------------- PRECIPITATION ANOMALY LAYER --------------------
+
+# Extract precipitation anomaly values
+precip_vals = [f['properties'].get('avg_precip_anomaly') for f in geojson['features'] if f['properties'].get('avg_precip_anomaly') is not None]
+precip_min, precip_max = min(precip_vals), max(precip_vals)
+
+# Create colormap for precipitation
+precip_colormap = cm.LinearColormap(['coral', 'gray',  '#0571b0'], vmin=precip_min, vmax=precip_max)
+precip_colormap.caption = 'Avg Precipitation Anomaly (mm)'
+precip_colormap.add_to(Map)
+
+# Define style function for precipitation
+def precip_style(feature):
+    val = feature['properties'].get('avg_precip_anomaly')
+    color = 'gray' if val is None else precip_colormap(val)
+    return {
+        'fillOpacity': 0.7,
+        'weight': 1,
+        'color': 'black',
+        'fillColor': color
+    }
+
+# Add precip layer
+folium.GeoJson(
+    geojson,
+    name='Precipitation Anomaly',
+    style_function=precip_style,
+    tooltip=folium.GeoJsonTooltip(fields=['avg_precip_anomaly'], aliases=['Precip Anomaly (mm):'])
+).add_to(Map)
+
+
+# -------------------- FINAL MAP SETUP --------------------
+
+folium.LayerControl().add_to(Map)
+Map
+```
+
+
+ 
+
 ## This is the end of the script
 
 Thank you. 
+
+
+
