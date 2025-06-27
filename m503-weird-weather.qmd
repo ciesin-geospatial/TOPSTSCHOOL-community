@@ -50,7 +50,7 @@ ee.Initialize(project='PROJECT_ID') #replpace with your project ID
 
 import ee
 ee.Authenticate()
-ee.Initialize(project='ee-jmartine')
+ee.Initialize(project='PROJECT_ID')
 print(ee.String('Hello from the Earth Engine servers!').getInfo())
 ```
 
@@ -78,15 +78,7 @@ import branca.colormap as cm
 
 
 ```
-
-If you're having issues with the `geemap` package, please run the code below on a bash, zsh, or terminal window:
-
-```{python} 
-
-
-pip install --upgrade geemap
-
-```
+ 
 
 
 ```{python}
