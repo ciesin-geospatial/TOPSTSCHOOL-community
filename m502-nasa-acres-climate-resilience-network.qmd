@@ -2,7 +2,7 @@
 title: "NASA Acres and Climate Resilience Network"
 author: "Jacom Almon Orser and Dr. Michael Humber"
 format: html
-bibliography: acres-references.bib
+bibliography: m502-acres-references.bib
 ---
 # Primary Learning Objectives
 
