@@ -50,7 +50,7 @@ ee.Initialize(project='PROJECT_ID') #replpace with your project ID
 
 import ee
 ee.Authenticate()
-ee.Initialize(project='PROJECT_ID')
+ee.Initialize(project='ee-jmartine')
 print(ee.String('Hello from the Earth Engine servers!').getInfo())
 ```
 
@@ -215,7 +215,7 @@ temps_1 = pd.DataFrame({'county_id': county_ids, 'county_name': county_names})
 precips_1 = pd.DataFrame({'county_id': county_ids, 'county_name': county_names})
 
 # Loop through days of year (DOY 121–123, i.e., May 1–3 for testing)
-for day in range(121, 124): #182
+for day in range(121, 182): 
     day_str = str(day)
 
     # 1. Get composite average for this DOY across all years
@@ -282,7 +282,7 @@ temps_daily1 = pd.DataFrame({'county_id': county_ids, 'county_name': county_name
 precips_daily1 = pd.DataFrame({'county_id': county_ids, 'county_name': county_names})
 
 # Loop over each day in 2024 (example: DOY 121–123)
-for doy in range(121, 124): #182
+for doy in range(121, 182):#182
     date = datetime.date(2024, 1, 1) + datetime.timedelta(days=doy - 1) 
 
     # Use DOY as string for column name
