@@ -1,0 +1,49 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"Snow Storms 1990\"\n",
+        "author: \n",
+        "  - \"Stevaughn Borders\"\n",
+        "format: \n",
+        "    html\n",
+        "---"
+      ],
+      "id": "14235e15"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import geopandas as gpd"
+      ],
+      "id": "077c7f92",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "gdf = gpd.read_file(\"data/snow-storms/Snow_19000226_19000303_1.shp\") # Display the first few rows of the GeoDataFrame print(gdf.head())\n",
+        "print(gdf.head())"
+      ],
+      "id": "a7406642",
+      "execution_count": null,
+      "outputs": []
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "/Users/CIESINIT/miniconda3/envs/school/share/jupyter/kernels/python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}
