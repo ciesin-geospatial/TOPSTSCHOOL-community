@@ -17,13 +17,13 @@ The SCHOOL Modules do not intend to teach all-encompassing earth science lessons
  **Community Generated: Multi-Hazards**  
    This lesson showcases community-generated lessons that demonstrate different aspects of the data science life cycle.
    
-   - [Lesson 1: Mapping Wildfire Burned Areas Using VIIRS/AVIRIS-3 Data (Python)](https://ciesin-geospatial.github.io/TOPSTSCHOOL-disasters/m501-viirs-wildfires.html)
+   - [Lesson 1: Mapping Wildfire Burned Areas Using VIIRS/AVIRIS-3 Data (Python)](https://ciesin-geospatial.github.io/TOPSTSCHOOL-community/m501-viirs-wildfires.html)
 
-   - [Lesson 2: The Major Effects of Climate Change Towards the Arctic Ecosystem (Python)](https://ciesin-geospatial.github.io/TOPSTSCHOOL-disasters/m502-arctic-climate.html)
+   - [Lesson 2: The Major Effects of Climate Change Towards the Arctic Ecosystem (Python)](https://ciesin-geospatial.github.io/TOPSTSCHOOL-community/m502-arctic-climate.html)
    
-   - [Lesson 3: Data Analysis of California Wildfires (Python)](https://ciesin-geospatial.github.io/TOPSTSCHOOL-disasters/m503-california-wildfires.html)
+   - [Lesson 3: Data Analysis of California Wildfires (Python)](https://ciesin-geospatial.github.io/TOPSTSCHOOL-community/m503-california-wildfires.html)
    
-   - [Lesson 4: Opening Snow Storm Data (Python)](https://ciesin-geospatial.github.io/TOPSTSCHOOL-disasters/m504-snow-storms.html)
+   - [Lesson 4: Opening Snow Storm Data (Python)](https://ciesin-geospatial.github.io/TOPSTSCHOOL-community/m504-snow-storms.html)
 
     
 
